@@ -1,0 +1,44 @@
+import os
+import requests
+from bs4 import BeautifulSoup
+
+# URL сайта для парсинга
+URL = "https://example.com/gallery"
+SAVE_FOLDER = "images"
+
+def get_html(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.text
+    else:
+        print(f"Ошибка {response.status_code}: не удалось получить данные.")
+        return None
+
+def parse_images(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    images = soup.find_all('img')
+    return [img['src'] for img in images if 'src' in img.attrs]
+
+def download_image(url, folder):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    filename = os.path.join(folder, url.split("/")[-1])
+    response = requests.get(url, stream=True)
+    if response.status_code == 200:
+        with open(filename, 'wb') as file:
+            for chunk in response.iter_content(1024):
+                file.write(chunk)
+        print(f"Скачано: {filename}")
+    else:
+        print(f"Ошибка скачивания: {url}")
+
+def main():
+    html = get_html(URL)
+    if html:
+        image_urls = parse_images(html)
+        for img_url in image_urls:
+            full_url = img_url if img_url.startswith("http") else f"{URL}/{img_url}"
+            download_image(full_url, SAVE_FOLDER)
+
+if __name__ == "__main__":
+    main()
