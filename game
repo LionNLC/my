@@ -1,0 +1,73 @@
+import 'package:flutter/material.dart';
+import 'dart:math';
+
+void main() => runApp(TapTheBallApp());
+
+class TapTheBallApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: TapTheBallGame(),
+    );
+  }
+}
+
+class TapTheBallGame extends StatefulWidget {
+  @override
+  _TapTheBallGameState createState() => _TapTheBallGameState();
+}
+
+class _TapTheBallGameState extends State<TapTheBallGame> {
+  int score = 0;
+  double ballX = 0;
+  double ballY = 0;
+
+  void moveBall() {
+    final random = Random();
+    setState(() {
+      ballX = random.nextDouble() * 2 - 1; // От -1 до 1
+      ballY = random.nextDouble() * 2 - 1; // От -1 до 1
+    });
+  }
+
+  void increaseScore() {
+    setState(() {
+      score++;
+    });
+    moveBall();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Tap the Ball'),
+      ),
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment(ballX, ballY),
+            child: GestureDetector(
+              onTap: increaseScore,
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment(0, -0.9),
+            child: Text(
+              'Очки: $score',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
